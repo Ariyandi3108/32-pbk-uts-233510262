@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const tasks = ref([])
 const newTask = ref('')
+const filter = ref('all')
 
 const addTask = () => {
   if (newTask.value !== '') {
@@ -23,15 +24,30 @@ const toggleTask = (task) => {
   task.completed == !task.completed
 }
 
+const filteredTasks = computed(() => {
+  if (filter.value === 'completed') {
+    return tasks.value.filter(task => task.completed)
+  } else if (filter.value === 'active') {
+    return tasks.value.filter(task => !task.completed)
+  } else {
+    return tasks.value
+  }
+})
+
 </script>
 
 <template>
   <div>
     <input type="text" v-model="newTask" @keyup.enter="addTask">
     <button @click="addTask">Add Task</button>
+    <select v-model="filter">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="completed">Completed</option>
+    </select>
 
     <ul>
-      <li v-for="task in tasks" :key="task.id">
+      <li v-for="task in filteredTasks" :key="task.id">
         <input type="checkbox" v-model="task.completed" @change="toggleTask(task)">
         {{ task.title }}
         <button @click="removeTask(task)">Remove</button>
